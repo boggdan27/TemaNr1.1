@@ -1,6 +1,6 @@
 package mta.Tema1;
 
-class CExceptions {
+public class CExceptions {
     String messaje;
     String cause;
     int code;

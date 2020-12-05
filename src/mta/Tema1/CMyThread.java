@@ -9,7 +9,6 @@ public class CMyThread {
 
     public void run()
     {
-		//am adaugat o linie
 		
     }
 

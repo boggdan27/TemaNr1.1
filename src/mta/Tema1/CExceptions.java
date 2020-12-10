@@ -1,6 +1,6 @@
 package mta.Tema1;
 
-public class CExceptions {
+public class CExceptions extends Throwable {
     String message;
     String cause;
     int code;
@@ -21,9 +21,9 @@ public class CExceptions {
         return message;
     }
 
-    public String getCause() {
+  /*  public String getCause() {
         return cause;
-    }
+    }*/
 
     public int getCode() {
         return code;

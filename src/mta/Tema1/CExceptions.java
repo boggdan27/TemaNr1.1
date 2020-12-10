@@ -1,18 +1,24 @@
 package mta.Tema1;
 
 public class CExceptions {
-    String messaje;
+    String message;
     String cause;
     int code;
 
-    public CExceptions(String messaje, String cause, int code) {
-        this.messaje = messaje;
+    public CExceptions() {
+        message = null;
+        cause = null;
+        code = 0;
+    }
+
+    public CExceptions(String message, String cause, int code) {
+        this.message = message;
         this.cause = cause;
         this.code = code;
     }
 
-    public String getMessaje() {
-        return messaje;
+    public String getMessage() {
+        return message;
     }
 
     public String getCause() {

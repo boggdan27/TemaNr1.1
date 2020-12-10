@@ -3,7 +3,6 @@ package mta.Tema1;
 public class CConfigure{
     private static CConfigure instance_config = null;
 
-
     int threads_nr;
     int delay;
     String root_director;

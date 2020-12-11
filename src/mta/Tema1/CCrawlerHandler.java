@@ -14,10 +14,30 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CCrawlerHandler {
-    String current_url;         // url-ul paginii pe care dorim sa o descarcam
-    String path_current_url;    // path-ul paginii descarcate
-    int statusCode;             // codul conexiunii url-ului prin http
-    String html;
+    private String current_url;         // url-ul paginii pe care dorim sa o descarcam
+    private String path_current_url;    // path-ul paginii descarcate
+    private int statusCode;             // codul conexiunii url-ului prin http
+    private String html;
+
+    public ArrayList<String> getLinks() throws  IOException{
+        ArrayList<String> links=this.extract_links();
+        return links;
+    }
+
+    public ArrayList<String> getCss() throws  IOException{
+        ArrayList<String> css=this.extract_css();
+        return css;
+    }
+
+    public ArrayList<String> getPdf() throws  IOException{
+        ArrayList<String> pdfs=this.extract_pdf();
+        return pdfs;
+    }
+
+    public ArrayList<String> getImg() throws  IOException{
+        ArrayList<String> imgs=this.extract_pdf();
+        return imgs;
+    }
 
     public CCrawlerHandler(String current_url) throws IOException {
 
@@ -126,6 +146,7 @@ public class CCrawlerHandler {
             return null;
         }
     }
+
     public String getHtml() throws IOException {
 
         String filename = path_current_url;
@@ -150,6 +171,7 @@ public class CCrawlerHandler {
         }
         return htmlstring;
     }
+
     public ArrayList<String> extract_img() throws IOException {
         ArrayList<String> img = new ArrayList<String>();
         String imgRegex = "<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>";
@@ -169,4 +191,123 @@ public class CCrawlerHandler {
         }
         return img;
     }
+
+    public ArrayList<String> extract_pdf() throws IOException{
+        ArrayList<String> pdf = new ArrayList<String>();
+        String pdfRegex = "[^\\/\'\\-]*.pdf";
+
+        Pattern pattern = Pattern.compile(pdfRegex);
+        Matcher match = pattern.matcher(this.html);
+
+        while (match.find()) {
+            if (!match.group(0).isEmpty()) { // We have a new IMG tag
+                String pdfSrc = match.group(0);
+                String pdfName = pdfSrc.substring(pdfSrc.lastIndexOf("/") + 1);
+                System.out.println(pdfName); // prints out name.pdf
+                pdf.add(pdfName);
+
+            }
+        }
+
+
+     /*   Pattern pTag = Pattern.compile("(?i)<a([^>]+)>(.+?)</a>");  // pattern pentru tagul <a>
+        Matcher mTag = pTag.matcher(this.html);                    // un obiect care face match pattern-ului cu continutul html
+
+        Pattern pPDF = Pattern.compile("\\s*(?i)href\\s*=\\s*(\"([^\"]*\")|'[^']*'|([^'\">\\s]+)).pdf");   //pattern pentru href
+        Matcher mPDF;
+
+        while (mTag.find()){
+            String mPDF2 =mTag.group(1);
+            mPDF=pPDF.matcher(mPDF2);
+            while(mPDF.find()){
+                if (!mPDF.group(1).isEmpty()) { // We have a new pdf tag
+                    String pdfName = mPDF.group(1);
+                    //String pdfName = pdfSrc.substring(pdfSrc.lastIndexOf("/") + 1);
+                    System.out.println(pdfName); //
+                    pdf.add(pdfName);
+                }
+            }
+        }*/
+        return pdf;
+    }
+
+    public ArrayList<String> extract_js() throws IOException{
+        ArrayList<String> pdf = new ArrayList<String>();
+        String pdfRegex = "[^\\/\'\\-]*.js";
+
+        Pattern pattern = Pattern.compile(pdfRegex);
+        Matcher match = pattern.matcher(this.html);
+
+        while (match.find()) {
+            if (!match.group(0).isEmpty()) { // We have a new IMG tag
+                String pdfSrc = match.group(0);
+                String pdfName = pdfSrc.substring(pdfSrc.lastIndexOf("/") + 1);
+                System.out.println(pdfName); // prints out name.pdf
+                pdf.add(pdfName);
+
+            }
+        }
+
+
+     /*   Pattern pTag = Pattern.compile("(?i)<a([^>]+)>(.+?)</a>");  // pattern pentru tagul <a>
+        Matcher mTag = pTag.matcher(this.html);                    // un obiect care face match pattern-ului cu continutul html
+
+        Pattern pPDF = Pattern.compile("\\s*(?i)href\\s*=\\s*(\"([^\"]*\")|'[^']*'|([^'\">\\s]+)).pdf");   //pattern pentru href
+        Matcher mPDF;
+
+        while (mTag.find()){
+            String mPDF2 =mTag.group(1);
+            mPDF=pPDF.matcher(mPDF2);
+            while(mPDF.find()){
+                if (!mPDF.group(1).isEmpty()) { // We have a new pdf tag
+                    String pdfName = mPDF.group(1);
+                    //String pdfName = pdfSrc.substring(pdfSrc.lastIndexOf("/") + 1);
+                    System.out.println(pdfName); //
+                    pdf.add(pdfName);
+                }
+            }
+        }*/
+        return pdf;
+    }
+
+    public ArrayList<String> extract_css() throws IOException{
+        ArrayList<String> pdf = new ArrayList<String>();
+        String pdfRegex = "[^\\/\'\\-]*.css";
+
+        Pattern pattern = Pattern.compile(pdfRegex);
+        Matcher match = pattern.matcher(this.html);
+
+        while (match.find()) {
+            if (!match.group(0).isEmpty()) { // We have a new IMG tag
+                String pdfSrc = match.group(0);
+                String pdfName = pdfSrc.substring(pdfSrc.lastIndexOf("/") + 1);
+                System.out.println(pdfName); // prints out name.pdf
+                pdf.add(pdfName);
+
+            }
+        }
+
+
+     /*   Pattern pTag = Pattern.compile("(?i)<a([^>]+)>(.+?)</a>");  // pattern pentru tagul <a>
+        Matcher mTag = pTag.matcher(this.html);                    // un obiect care face match pattern-ului cu continutul html
+
+        Pattern pPDF = Pattern.compile("\\s*(?i)href\\s*=\\s*(\"([^\"]*\")|'[^']*'|([^'\">\\s]+)).pdf");   //pattern pentru href
+        Matcher mPDF;
+
+        while (mTag.find()){
+            String mPDF2 =mTag.group(1);
+            mPDF=pPDF.matcher(mPDF2);
+            while(mPDF.find()){
+                if (!mPDF.group(1).isEmpty()) { // We have a new pdf tag
+                    String pdfName = mPDF.group(1);
+                    //String pdfName = pdfSrc.substring(pdfSrc.lastIndexOf("/") + 1);
+                    System.out.println(pdfName); //
+                    pdf.add(pdfName);
+                }
+            }
+        }*/
+        return pdf;
+    }
+
+
 }

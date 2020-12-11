@@ -11,6 +11,7 @@ public class Main {
         //cc.download_page();
         cc.extract_img();
         cc.extract_links();
+        cc.extract_pdf();
 
     }
 

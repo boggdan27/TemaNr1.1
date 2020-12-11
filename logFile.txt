@@ -1,0 +1,2 @@
+
+2020-12-11T15:06:36.336889500: Codul primit este 200 : Conexiunea cu url https://mta.ro/ a fost facuta cu succes!

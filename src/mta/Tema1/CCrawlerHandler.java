@@ -17,12 +17,15 @@ public class CCrawlerHandler {
     String current_url;         // url-ul paginii pe care dorim sa o descarcam
     String path_current_url;    // path-ul paginii descarcate
     int statusCode;             // codul conexiunii url-ului prin http
+    String html;
 
-    public CCrawlerHandler(String current_url) {
+    public CCrawlerHandler(String current_url) throws IOException {
 
         this.current_url = current_url;
         this.path_current_url = create_path(this.current_url);
         this.statusCode = 0;
+        this.download_page();
+        this.html = getHtml();
     }
 
     public String getCurrent_url() {
@@ -39,7 +42,8 @@ public class CCrawlerHandler {
         return url_filename;
     }
 
-    public void download_page() throws IOException {        // functie pentru a descarca pagina web in format html
+    public void download_page() throws IOException {
+        // functie pentru a descarca pagina web in format html
         // realizare conexiune cu url-ul curent prin http
         URL current = new URL(this.current_url);
         HttpURLConnection connect = (HttpURLConnection) current.openConnection();
@@ -86,28 +90,8 @@ public class CCrawlerHandler {
 
     public ArrayList<String> extract_links() throws IOException {       // functie pentru a extrage url-uri valide din pagina curenta
 
-        String filename = path_current_url;
-        String htmlstring = null;
+        String htmlstring = this.html;
         if (this.statusCode == 200) {       // conexiunea a fost realizata cu succes
-            // citire  intreg fisier intr-o variabila  BufferedReader
-            FileReader filer = new FileReader(filename);
-            BufferedReader buffr = new BufferedReader(filer);
-
-            boolean eof = false;
-            while (!eof) {
-                String s = buffr.readLine();
-                if (s == null) {
-                    eof = true;
-                } else {
-                    if (htmlstring == null) {
-                        htmlstring = s;
-                    } else {
-                        //System.out.println(s);
-                        htmlstring = htmlstring + " " + s;
-                    }
-                }
-            }
-
             ArrayList<String> elements = new ArrayList<String>();       // lista url valide
 
             Pattern pTag = Pattern.compile("(?i)<a([^>]+)>(.+?)</a>");  // pattern pentru tagul <a>
@@ -141,5 +125,48 @@ public class CCrawlerHandler {
         } else {
             return null;
         }
+    }
+    public String getHtml() throws IOException {
+
+        String filename = path_current_url;
+        String htmlstring = null;
+
+        FileReader filer = new FileReader(filename);
+        BufferedReader buffr = new BufferedReader(filer);
+
+        boolean eof = false;
+        while (!eof) {
+            String s = buffr.readLine();
+            if (s == null) {
+                eof = true;
+            } else {
+                if (htmlstring == null) {
+                    htmlstring = s;
+                } else {
+                    //System.out.println(s);
+                    htmlstring = htmlstring + " " + s;
+                }
+            }
+        }
+        return htmlstring;
+    }
+    public ArrayList<String> extract_img() throws IOException {
+        ArrayList<String> img = new ArrayList<String>();
+        String imgRegex = "<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>";
+
+        Pattern pattern = Pattern.compile(imgRegex);
+        Matcher match = pattern.matcher(this.html);
+
+        while (match.find()){
+            if (!match.group(1).isEmpty()) { // We have a new IMG tag
+                String imgSrc = match.group(1);
+                String imageName = imgSrc.substring(imgSrc.lastIndexOf("/") +1);
+                System.out.println(imageName); // prints out name.gif||png||jpeg
+                img.add(imageName);
+
+            }
+            //System.out.println(match.group(2) + ": " + match.group(4));
+        }
+        return img;
     }
 }

@@ -8,7 +8,8 @@ public class Main {
         ICrawler c = CCrawler.getInstance();
 
         CCrawlerHandler cc =new CCrawlerHandler("https://mta.ro/");
-        cc.download_page();
+        //cc.download_page();
+        cc.extract_img();
         cc.extract_links();
 
     }

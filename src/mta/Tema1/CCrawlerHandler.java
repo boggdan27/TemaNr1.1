@@ -14,10 +14,30 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CCrawlerHandler {
-    String current_url;         // url-ul paginii pe care dorim sa o descarcam
-    String path_current_url;    // path-ul paginii descarcate
-    int statusCode;             // codul conexiunii url-ului prin http
-    String html;
+    private String current_url;         // url-ul paginii pe care dorim sa o descarcam
+    private String path_current_url;    // path-ul paginii descarcate
+    private int statusCode;             // codul conexiunii url-ului prin http
+    private String html;
+
+    public ArrayList<String> getLinks() throws  IOException{
+        ArrayList<String> links=this.extract_links();
+        return links;
+    }
+
+    public ArrayList<String> getCss() throws  IOException{
+        ArrayList<String> css=this.extract_css();
+        return css;
+    }
+
+    public ArrayList<String> getPdf() throws  IOException{
+        ArrayList<String> pdfs=this.extract_pdf();
+        return pdfs;
+    }
+
+    public ArrayList<String> getImg() throws  IOException{
+        ArrayList<String> imgs=this.extract_pdf();
+        return imgs;
+    }
 
     public CCrawlerHandler(String current_url) throws IOException {
 
@@ -126,6 +146,7 @@ public class CCrawlerHandler {
             return null;
         }
     }
+
     public String getHtml() throws IOException {
 
         String filename = path_current_url;
@@ -150,6 +171,7 @@ public class CCrawlerHandler {
         }
         return htmlstring;
     }
+
     public ArrayList<String> extract_img() throws IOException {
         ArrayList<String> img = new ArrayList<String>();
         String imgRegex = "<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>";
@@ -161,12 +183,71 @@ public class CCrawlerHandler {
             if (!match.group(1).isEmpty()) { // We have a new IMG tag
                 String imgSrc = match.group(1);
                 String imageName = imgSrc.substring(imgSrc.lastIndexOf("/") +1);
-                System.out.println(imageName); // prints out name.gif||png||jpeg
+               // System.out.println(imageName); // prints out name.gif||png||jpeg
                 img.add(imageName);
 
             }
-            //System.out.println(match.group(2) + ": " + match.group(4));
         }
         return img;
     }
+
+    public ArrayList<String> extract_pdf() throws IOException{
+        ArrayList<String> pdf = new ArrayList<String>();
+        String pdfRegex = "[^\\/\'\\-]*.pdf";
+
+        Pattern pattern = Pattern.compile(pdfRegex);
+        Matcher match = pattern.matcher(this.html);
+
+        while (match.find()) {
+            if (!match.group(0).isEmpty()) { // We have a new IMG tag
+                String pdfSrc = match.group(0);
+                String pdfName = pdfSrc.substring(pdfSrc.lastIndexOf("/") + 1);
+                //System.out.println(pdfName); // prints out name.pdf
+                pdf.add(pdfName);
+
+            }
+        }
+
+        return pdf;
+    }
+
+    public ArrayList<String> extract_js() throws IOException{
+        ArrayList<String> js = new ArrayList<String>();
+        String jsRegex = "[^\\/\'\\-]*.js";
+
+        Pattern pattern = Pattern.compile(jsRegex);
+        Matcher match = pattern.matcher(this.html);
+
+        while (match.find()) {
+            if (!match.group(0).isEmpty()) { // We have a new IMG tag
+                String jsSrc = match.group(0);
+                String jsName = jsSrc.substring(jsSrc.lastIndexOf("/") + 1);
+                //System.out.println(jsName); // prints out name.js
+                js.add(jsName);
+
+            }
+        }
+        return js;
+    }
+
+    public ArrayList<String> extract_css() throws IOException{
+        ArrayList<String> css = new ArrayList<String>();
+        String cssRegex = "[^\\/\'\\-]*.css";
+
+        Pattern pattern = Pattern.compile(cssRegex);
+        Matcher match = pattern.matcher(this.html);
+
+        while (match.find()) {
+            if (!match.group(0).isEmpty()) { // We have a new IMG tag
+                String cssSrc = match.group(0);
+                String cssName = cssSrc.substring(cssSrc.lastIndexOf("/") + 1);
+                //System.out.println(cssName); // prints out name.cs
+                css.add(cssName);
+
+            }
+        }
+        return css;
+    }
+
+
 }

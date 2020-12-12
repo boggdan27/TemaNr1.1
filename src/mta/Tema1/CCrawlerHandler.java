@@ -97,9 +97,34 @@ public class CCrawlerHandler {
         return user_disallow;
     }
 
-    public String create_path(String url) {     // functie care schimba url-ul in calea catre pagina descarcata corespunzatoare url-ului respectiv
-        String url_filename = url.substring(7, url.length() - 1);
-        url_filename = Paths.get("").toAbsolutePath().toString() + url_filename + ".html";
+    public String create_path(String url) throws IOException {     // functie care schimba url-ul in calea catre pagina descarcata corespunzatoare url-ului respectiv
+        System.out.println("Ultimul url este: " + url);
+        String url_filename = url.replace("https://","");
+        url_filename = url_filename.replace("http://","");
+        url_filename = url_filename.replace("http:","");
+        url_filename = url_filename.replace("www.","");
+        String a = url_filename.substring(url_filename.length()-1);
+        if(a.equals("/")) {
+            url_filename = url_filename.substring(0,url_filename.length()-1);
+        }
+        String[] b = url_filename.split("/");
+        String mm = b[0];
+        for( int i =0;i<b.length;i++)
+        {
+            Path path = Paths.get(Paths.get("").toAbsolutePath().toString() +"\\" + mm);
+            if(Files.notExists(path)) {
+                Files.createDirectory(path);
+            }
+            if(i!=b.length-1) {
+                mm = mm + "\\" + b[i + 1];
+            }
+        }
+        String c = url_filename.replace(b[b.length-1],"");
+        Path path = Paths.get(Paths.get("").toAbsolutePath().toString() +"\\" + c);
+        if(Files.notExists(path)) {
+            Files.createDirectory(path);
+        }
+        url_filename = Paths.get("").toAbsolutePath().toString() +"\\"+ url_filename + ".html";
         return url_filename;
     }
 
@@ -122,11 +147,11 @@ public class CCrawlerHandler {
             HttpURLConnection connect = (HttpURLConnection) current.openConnection();
 
             int responseCode = connect.getResponseCode();   //cod conexiuenpentru a afla daca conexiunea se poate face sau nu
-            String responseMessage = null;
+            String responseMessage = connect.getResponseMessage();
 
-            if (responseCode == 200) {      // conexiunea se poate face
+            if (responseCode < 400) {       // conexiunea se poate face
                 statusCode = responseCode;
-                responseMessage = "Codul primit este " + responseCode + " : Conexiunea cu url " + current_url + " a fost facuta cu succes!";
+                responseMessage = "COD : "+responseCode + " Message: "+ responseMessage + " conexiunea cu url " + current_url + " a fost facuta cu succes!";
                 connect.connect();      //realizare conexiune
 
                 FileWriter writer = new FileWriter(this.path_current_url);  //creare fisier daca nu exista
@@ -185,11 +210,14 @@ public class CCrawlerHandler {
                     String link = mLink.group(1); // extragere link
 
                     String[] parts = link.split("\"");
-                    String l = parts[1];
+                    if (parts.length != 0) {
+                        String l = parts[parts.length - 1];
 
-                    Matcher mValid = urlValid.matcher(l);   // verificare link daca este un url valid
-                    if (mValid.find()) {
-                        elements.add(l);
+                        Matcher mValid = urlValid.matcher(l);   // verificare link daca este un url valid
+                        if (mValid.find()) {
+                            elements.add(l);
+                        }
+
                     }
                 }
             }
@@ -198,6 +226,17 @@ public class CCrawlerHandler {
         } else {
             return null;
         }
+    }
+
+    public int search_by_word(String wrd, String htmlpage) {
+        Pattern pWord = Pattern.compile("(?i).*?\\b" + wrd + "\\b.*?");
+        Matcher mWord = pWord.matcher(htmlpage);
+        int count = 0;
+
+        while (mWord.find()) {
+            count++;
+        }
+        return count;
     }
 
     public String getHtml() throws IOException {

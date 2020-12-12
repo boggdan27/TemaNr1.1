@@ -7,7 +7,7 @@ public class Main {
 
         ICrawler c = CCrawler.getInstance();
 
-        CCrawlerHandler cc =new CCrawlerHandler("https://mta.ro/");
+       /* CCrawlerHandler cc =new CCrawlerHandler("https://mta.ro/");
 
         CConfigure conf= new CConfigure();
 
@@ -16,6 +16,11 @@ public class Main {
         cc.extract_pdf();
         cc.extract_css();
         cc.extract_js();
+*/
+
+        CTree t = new CTree("https://mta.ro/",3);
+
+        t.setChildren();
 
     }
 

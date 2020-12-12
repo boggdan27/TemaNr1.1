@@ -18,6 +18,7 @@ public class CCrawlerHandler {
     private String path_current_url;    // path-ul paginii descarcate
     private int statusCode;             // codul conexiunii url-ului prin http
     private String html;
+    ArrayList<String> user_disallow = new ArrayList<String>();
 
     public ArrayList<String> getLinks() throws  IOException{
         ArrayList<String> links=this.extract_links();
@@ -53,7 +54,47 @@ public class CCrawlerHandler {
     }
 
     public void verify_robot() {
+//functie de verificare permisiuni de downloadare pentru crawler.
+        String calea_robot = current_url + "/robots.txt";
+        String useragent = null;
+        user_disallow = null; //lista de disallow
 
+        try{
+            URL new_url = new URL(calea_robot);
+            HttpURLConnection conn = (HttpURLConnection) new_url.openConnection();
+
+            BufferedReader continut_robot = new BufferedReader(new InputStreamReader(new_url.openStream()));
+            String linie = continut_robot.readLine();       //citire linie cu linie
+
+            while(linie != null)
+            {
+                if(linie.contains("User-agent:")|| linie.contains("User-Agent:") || linie.toLowerCase().startsWith("user-agent"))  //daca am gasit un agent
+                {
+                    int start = linie.indexOf(":") + 1;
+                    int end   = linie.length();
+                    useragent = linie.substring(start, end).trim();  //il stochez
+                }
+                else if(linie.contains("Disallow:"))
+                {
+                    if(useragent.equals("*"))   //daca agentul e de tip *, pun ce are in disallow
+                    {
+                        int start = linie.indexOf(":") + 1;
+                        int end   = linie.length();
+                        String aux = linie.substring(start,end).trim();
+                        user_disallow.add(aux);
+                    }
+                }
+                linie = continut_robot.readLine();
+            }
+
+        }catch(IOException e)
+        {
+            System.out.println("Error: something is wrong with robots.txt");
+        }
+    }
+
+    public ArrayList<String> getUser_disallow() {
+        return user_disallow;
     }
 
     public String create_path(String url) {     // functie care schimba url-ul in calea catre pagina descarcata corespunzatoare url-ului respectiv
@@ -63,49 +104,61 @@ public class CCrawlerHandler {
     }
 
     public void download_page() throws IOException {
-        // functie pentru a descarca pagina web in format html
-        // realizare conexiune cu url-ul curent prin http
+
+        ArrayList<String> dis = this.getUser_disallow();
         URL current = new URL(this.current_url);
-        HttpURLConnection connect = (HttpURLConnection) current.openConnection();
+        boolean flag = true;
 
-        int responseCode = connect.getResponseCode();   //cod conexiuenpentru a afla daca conexiunea se poate face sau nu
-        String responseMessage = null;
-
-        if (responseCode == 200) {      // conexiunea se poate face
-            statusCode = responseCode;
-            responseMessage = "Codul primit este " + responseCode + " : Conexiunea cu url " + current_url + " a fost facuta cu succes!";
-            connect.connect();      //realizare conexiune
-
-            FileWriter writer = new FileWriter(this.path_current_url);  //creare fisier daca nu exista
-
-            // realizare scriere in fisier html a paginii web
-            InputStream is = current.openStream();
-
-            try (BufferedReader page = new BufferedReader(new InputStreamReader(is))) {
-                String line;
-                while ((line = page.readLine()) != null) {
-                    writer.write(line);
-                }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                throw new MalformedURLException("URL is malformed!!");
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new IOException();
+        for(String diss_pag: dis)
+        {
+            if(current.equals(diss_pag))
+            {
+                flag= false;
             }
-            writer.close();
         }
-        else if (responseCode == 404) {     //nu se poate face conexiunea
-            this.statusCode = responseCode;
-            responseMessage = "Codul primit este " + responseCode + " : Url " + current_url + " nu a fost gasit!";
+
+        if(flag == true) {        // functie pentru a descarca pagina web in format html
+            // realizare conexiune cu url-ul curent prin http
+            HttpURLConnection connect = (HttpURLConnection) current.openConnection();
+
+            int responseCode = connect.getResponseCode();   //cod conexiuenpentru a afla daca conexiunea se poate face sau nu
+            String responseMessage = null;
+
+            if (responseCode == 200) {      // conexiunea se poate face
+                statusCode = responseCode;
+                responseMessage = "Codul primit este " + responseCode + " : Conexiunea cu url " + current_url + " a fost facuta cu succes!";
+                connect.connect();      //realizare conexiune
+
+                FileWriter writer = new FileWriter(this.path_current_url);  //creare fisier daca nu exista
+
+                // realizare scriere in fisier html a paginii web
+                InputStream is = current.openStream();
+
+                try (BufferedReader page = new BufferedReader(new InputStreamReader(is))) {
+                    String line;
+                    while ((line = page.readLine()) != null) {
+                        writer.write(line);
+                    }
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                    throw new MalformedURLException("URL is malformed!!");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new IOException();
+                }
+                writer.close();
+            } else if (responseCode == 404) {     //nu se poate face conexiunea
+                this.statusCode = responseCode;
+                responseMessage = "Codul primit este " + responseCode + " : Url " + current_url + " nu a fost gasit!";
+            }
+            //creare fisier log daca nu exista deja
+            File create_file = new File(Paths.get("").toAbsolutePath().toString() + "\\logFile.txt");
+            create_file.createNewFile();
+            boolean append = true;
+            Path logFile = Paths.get(Paths.get("").toAbsolutePath().toString() + "\\logFile.txt");
+            byte bytes[] = ("\r\n" + LocalDateTime.now() + ": " + responseMessage).getBytes();
+            Files.write(logFile, bytes, StandardOpenOption.APPEND); //scriere in fisierul de log
         }
-        //creare fisier log daca nu exista deja
-        File create_file = new File(Paths.get("").toAbsolutePath().toString() + "\\logFile.txt");
-        create_file.createNewFile();
-        boolean append = true;
-        Path logFile = Paths.get(Paths.get("").toAbsolutePath().toString() + "\\logFile.txt");
-        byte bytes[] = ("\r\n" + LocalDateTime.now() + ": " + responseMessage).getBytes();
-        Files.write(logFile, bytes, StandardOpenOption.APPEND); //scriere in fisierul de log
     }
 
     public ArrayList<String> extract_links() throws IOException {       // functie pentru a extrage url-uri valide din pagina curenta

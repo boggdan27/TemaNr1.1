@@ -9,6 +9,8 @@ public class Main {
 
         CCrawlerHandler cc =new CCrawlerHandler("https://mta.ro/");
 
+        CConfigure conf= new CConfigure();
+
         cc.extract_img();
         cc.extract_links();
         cc.extract_pdf();

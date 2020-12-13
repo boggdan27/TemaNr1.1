@@ -29,15 +29,17 @@ public class CCrawlerHandler {
         ArrayList<String> css=this.extract_css();
         return css;
     }
-
     public ArrayList<String> getPdf() throws  IOException{
         ArrayList<String> pdfs=this.extract_pdf();
         return pdfs;
     }
-
     public ArrayList<String> getImg() throws  IOException{
         ArrayList<String> imgs=this.extract_pdf();
         return imgs;
+    }
+    public ArrayList<String> getJs() throws  IOException{
+        ArrayList<String> js=this.extract_js();
+        return js;
     }
 
     public CCrawlerHandler(String current_url) throws IOException {
@@ -282,10 +284,9 @@ public class CCrawlerHandler {
         }
         return img;
     }
-
     public ArrayList<String> extract_pdf() throws IOException{
         ArrayList<String> pdf = new ArrayList<String>();
-        String pdfRegex = "[^\\/\'\\-]*.pdf";
+        String pdfRegex = "[^\\/\'\\-]*\\.pdf";
 
         Pattern pattern = Pattern.compile(pdfRegex);
         Matcher match = pattern.matcher(this.html);
@@ -302,10 +303,9 @@ public class CCrawlerHandler {
 
         return pdf;
     }
-
     public ArrayList<String> extract_js() throws IOException{
         ArrayList<String> js = new ArrayList<String>();
-        String jsRegex = "[^\\/\'\\-]*.js";
+        String jsRegex = "[^\\/\'\\-\"]*\\.js";
 
         Pattern pattern = Pattern.compile(jsRegex);
         Matcher match = pattern.matcher(this.html);
@@ -321,10 +321,9 @@ public class CCrawlerHandler {
         }
         return js;
     }
-
     public ArrayList<String> extract_css() throws IOException{
         ArrayList<String> css = new ArrayList<String>();
-        String cssRegex = "[^\\/\'\\-]*.css";
+        String cssRegex = "[^\\/\'\\-]*\\.css";
 
         Pattern pattern = Pattern.compile(cssRegex);
         Matcher match = pattern.matcher(this.html);

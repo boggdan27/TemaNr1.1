@@ -31,7 +31,7 @@ public class CCrawler implements ICrawler {
     public ArrayList<String> getFirstUrls() throws FileNotFoundException //
     {
         ArrayList<String> urls = new ArrayList<String>();
-        File urlsFile = new File("TemaNr1.1/listaUrl.txt");
+        File urlsFile = new File("listaUrl.txt");
         Scanner myReader = new Scanner(urlsFile);
         while (myReader.hasNextLine()) {
             String data = myReader.nextLine();

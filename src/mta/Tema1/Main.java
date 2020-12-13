@@ -18,9 +18,10 @@ public class Main {
         cc.extract_js();
 */
 
-        CTree t = new CTree("https://mta.ro/",3);
+        CTree t = new CTree("https://mta.ro/",1);
 
         t.setChildren();
+        //t.genSiteMap();
 
     }
 

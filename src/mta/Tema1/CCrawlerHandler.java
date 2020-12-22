@@ -57,9 +57,23 @@ public class CCrawlerHandler {
 
     public void verify_robot() {
 //functie de verificare permisiuni de downloadare pentru crawler.
-        String calea_robot = current_url + "/robots.txt";
+        String check = current_url.substring(current_url.length()-1);
+        String calea_robot=null;
+        if(check.equals("/"))
+        {
+            calea_robot = current_url + "robots.txt";
+
+        }
+        else
+        {
+           calea_robot = current_url + "/robots.txt";
+
+        }
+
+
         String useragent = null;
-        user_disallow = null; //lista de disallow
+        String url_string = current_url;
+        //user_disallow = null; //lista de disallow
 
         try{
             URL new_url = new URL(calea_robot);
@@ -78,13 +92,26 @@ public class CCrawlerHandler {
                 }
                 else if(linie.contains("Disallow:"))
                 {
-                    if(useragent.equals("*"))   //daca agentul e de tip *, pun ce are in disallow
-                    {
-                        int start = linie.indexOf(":") + 1;
-                        int end   = linie.length();
-                        String aux = linie.substring(start,end).trim();
-                        user_disallow.add(aux);
+                      int start = linie.indexOf(":") + 1;
+                      int end   = linie.length();
+                      String aux2 =  linie.substring(start,end).trim();
+
+
+                    if(aux2.isEmpty())
+                        user_disallow.add(" ");
+                    else {
+                        if (aux2.equals("/")) {
+                            user_disallow.add("/");
+
+                        } else {
+                   //         if (url_string.contains(aux2)
+                            aux2= aux2.substring(1);
+                            url_string = url_string + aux2;
+                                user_disallow.add(url_string);
+                        }
+
                     }
+
                 }
                 linie = continut_robot.readLine();
             }
@@ -132,17 +159,35 @@ public class CCrawlerHandler {
 
     public void download_page() throws IOException {
 
+        this.verify_robot();
         ArrayList<String> dis = this.getUser_disallow();
         URL current = new URL(this.current_url);
+        String url_string = this.current_url;
         boolean flag = true;
 
-        for(String diss_pag: dis)
-        {
-            if(current.equals(diss_pag))
-            {
-                flag= false;
+        if(dis.isEmpty())
+            flag= true;
+        else {
+
+            for (String diss_pag : dis) {
+                if(diss_pag.equals(" "))
+                {
+                    flag=true;
+                }
+                else if(diss_pag.equals("/"))
+                {
+                    flag=false;
+                }
+                else if(diss_pag.equals(url_string))
+                {
+                    flag = false;
+                }
+
+
             }
         }
+
+
 
         if(flag == true) {        // functie pentru a descarca pagina web in format html
             // realizare conexiune cu url-ul curent prin http
